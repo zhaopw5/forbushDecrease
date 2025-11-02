@@ -21,8 +21,8 @@ AMS_PATH  = "ams/flux_long.csv"
 OMNI_PATH = "omni/omni2_2011_2025.csv"
 
 # ---------- 事件窗口 ----------
-t_start = pd.Timestamp("2015-06-19 00:00:00")
-t_end   = pd.Timestamp("2015-07-07 23:00:00")
+t_start = pd.Timestamp("2021-11-01 00:00:00")
+t_end   = pd.Timestamp("2021-11-08 23:00:00")
 PRE_HOURS = 48  # 基线缓冲时长
 
 # ---------- 创建输出文件夹 ----------

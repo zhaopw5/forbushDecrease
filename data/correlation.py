@@ -83,7 +83,7 @@ RIGIDITY_BINS = [
     "69.70-100.00GV"
 ]
 
-MAX_LAG_HOURS = 24*20  # 最大时间滞后
+MAX_LAG_HOURS = 24  # 最大时间滞后
 
 print("=" * 70)
 print("AMS-OMNI 相关性分析")
@@ -234,9 +234,14 @@ print(f"分析参数: {top_params}")
 target_rigidity = "5.37-5.90GV"
 ams_col = f"dI_{target_rigidity}"
 
-fig, axes = plt.subplots(1, len(top_params), figsize=(15, 4))
-if len(top_params) == 1:
-    axes = [axes]
+# 使用 2x3 子图布局；若参数不足 6，隐藏多余子图；超过 6 仅绘制前 6 个
+nrows, ncols = 2, 3
+max_panels = nrows * ncols
+if len(top_params) > max_panels:
+    top_params = top_params[:max_panels]
+
+fig, axes = plt.subplots(nrows, ncols, figsize=(16, 9))
+axes = np.array(axes).ravel()
 
 for idx, omni_param in enumerate(top_params):
     lags = []
@@ -272,6 +277,10 @@ for idx, omni_param in enumerate(top_params):
     axes[idx].set_title(f'{omni_param} vs {target_rigidity}', fontsize=12)
     axes[idx].legend(fontsize=9)
     axes[idx].grid(True, alpha=0.3)
+
+# 隐藏未使用的子图（当 top_params 少于 6 时）
+for k in range(len(top_params), max_panels):
+    axes[k].axis('off')
 
 plt.tight_layout()
 plt.savefig(f"{EVENT_DIR}/lag_correlation.png", dpi=300, bbox_inches='tight')
