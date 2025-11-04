@@ -47,12 +47,6 @@ Thumbs.db
 .venv
 venv/
 
-# Large CSV files
-data/ams/flux_long.csv
-data/ams/flux_long_check_2015.csv
-hourlyAMS/flux_long.csv
-data/ams/STL_2011-01-01-2024-07-31_hourly_FDs_pred_ams.csv
-data/ams/*.csv
-hourlyAMS/*.csv
-# ignore all csv generated locally
-*.csv
+# Large files
+/raw_data/
+
