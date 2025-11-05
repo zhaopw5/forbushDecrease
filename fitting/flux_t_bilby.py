@@ -35,7 +35,7 @@ SELECTED_RIGS = ["1.00-1.16GV", "5.37-5.90GV", "22.80-33.50GV"]
 
 # bilby采样器设置
 SAMPLER = "dynesty"  # 可选: 'nestle', 'dynesty', 'pymultinest', 'emcee'
-N_LIVE = 2000  # 采样点数（降低可加快调试，生产用2000以上）
+N_LIVE = 500  # 采样点数（降低可加快调试，生产用2000以上）
 OUTDIR_BILBY = f"/home/zpw/Files/forbushDecrease/FDs/{fd_id}/bilby_results"
 
 MIN_FLOAT = 1e-10

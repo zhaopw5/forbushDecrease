@@ -25,16 +25,17 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # ====================== 用户参数 ======================
-AMS_PATH = "/home/zpw/Files/forbushDecrease/data/FD_20211101/ams_processed.csv"
-OMNI_PATH = "/home/zpw/Files/forbushDecrease/data/FD_20211101/omni_processed.csv"
-OUT_DIR = "fig_flux_bilby"
+fd_id = 'FD_20150619'
+AMS_PATH = f"/home/zpw/Files/forbushDecrease/FDs/{fd_id}/ams_processed.csv"
+OMNI_PATH = f"/home/zpw/Files/forbushDecrease/FDs/{fd_id}/omni_processed.csv"
+OUT_DIR = f"/home/zpw/Files/forbushDecrease/FDs/{fd_id}/fig_flux_bilby"
 
 # 选用的三个代表性刚度区间（需要验证数据是否为双FRED轮廓）
 SELECTED_RIGS = ["1.00-1.16GV", "5.37-5.90GV", "22.80-33.50GV"]
 
 # bilby采样器设置
 SAMPLER = "dynesty"  # 可选: 'nestle', 'dynesty', 'pymultinest', 'emcee'
-N_LIVE = 100  # 采样点数（降低可加快调试，生产用2000以上）
+N_LIVE = 500  # 采样点数（降低可加快调试，生产用2000以上）
 OUTDIR_BILBY = "bilby_results"
 
 MIN_FLOAT = 1e-10
