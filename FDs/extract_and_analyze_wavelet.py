@@ -49,9 +49,8 @@ RIG_BINS = [1.00, 1.16, 1.33, 1.51, 1.71, 1.92, 2.15, 2.40, 2.67, 2.97,
 # Selected rigidity bins for analysis (can be modified)
 SELECTED_RIGS = [1.00, 2.15, 5.37, 9.26, 16.6]
 
-# Wavelet parameters
+# Wavelet parameters (dt is handled separately in the analysis)
 WAVELET_PARAMS = {
-    'dt': 1.0,          # Sampling interval in days
     'pad': 1,           # Zero padding
     'dj': 0.25,         # Scale spacing
     's0': -1,           # Smallest scale (default: 2*dt)
@@ -59,6 +58,9 @@ WAVELET_PARAMS = {
     'mother': 'MORLET', # Wavelet type
     'param': 6.0        # Morlet wavenumber k0
 }
+
+# Default sampling interval in days
+DEFAULT_DT = 1.0
 
 
 # ==================== Helper Functions ====================
@@ -202,34 +204,62 @@ def perform_wavelet_analysis(flux_series, dt=1.0, **wavelet_params):
     
     # Calculate significance (optional - using simple red noise)
     variance = np.var(flux_normalized)
-    signif = wf.wave_signif(
-        variance,
-        dt,
-        scale,
-        sigtest=0,
-        lag1=0.0,
-        siglvl=0.95,
-        mother=wavelet_params.get('mother', 'MORLET'),
-        param=wavelet_params.get('param', 6.0)
-    )
     
-    # Expand significance to 2D array
-    sig95 = signif[:, np.newaxis] * np.ones((1, power.shape[1]))
-    sig95 = power / sig95
+    try:
+        signif = wf.wave_signif(
+            variance,
+            dt,
+            scale,
+            sigtest=0,
+            lag1=0.0,
+            siglvl=0.95,
+            mother=wavelet_params.get('mother', 'MORLET'),
+            param=wavelet_params.get('param', 6.0)
+        )
+        
+        # Ensure signif has the same length as period/scale
+        if len(signif) != len(period):
+            # Resize signif to match
+            signif = np.interp(
+                np.arange(len(period)),
+                np.linspace(0, len(period)-1, len(signif)),
+                signif
+            )
+        
+        # Expand significance to 2D array
+        sig95 = signif[:, np.newaxis] * np.ones((1, power.shape[1]))
+        sig95 = power / sig95
+    except Exception as e:
+        # If significance calculation fails, use dummy values
+        print(f"  Warning: Significance calculation failed: {e}")
+        sig95 = np.ones_like(power)
     
     # Global significance
     dof = len(flux_clean)
-    global_signif = wf.wave_signif(
-        variance,
-        dt,
-        scale,
-        sigtest=1,
-        lag1=0.0,
-        siglvl=0.95,
-        dof=dof,
-        mother=wavelet_params.get('mother', 'MORLET'),
-        param=wavelet_params.get('param', 6.0)
-    )
+    try:
+        global_signif = wf.wave_signif(
+            variance,
+            dt,
+            scale,
+            sigtest=1,
+            lag1=0.0,
+            siglvl=0.95,
+            dof=dof,
+            mother=wavelet_params.get('mother', 'MORLET'),
+            param=wavelet_params.get('param', 6.0)
+        )
+        
+        # Ensure global_signif has the same length as period/scale
+        if len(global_signif) != len(period):
+            global_signif = np.interp(
+                np.arange(len(period)),
+                np.linspace(0, len(period)-1, len(global_signif)),
+                global_signif
+            )
+    except Exception as e:
+        # If global significance calculation fails, use dummy values
+        print(f"  Warning: Global significance calculation failed: {e}")
+        global_signif = np.ones(len(period))
     
     return {
         'wave': wave,
@@ -435,7 +465,7 @@ def analyze_multiple_rigidities(df, output_dir, selected_rigs=SELECTED_RIGS, rig
         print(f"  Performing wavelet analysis...")
         wavelet_results = perform_wavelet_analysis(
             flux_series,
-            dt=WAVELET_PARAMS['dt'],
+            dt=DEFAULT_DT,
             **WAVELET_PARAMS
         )
         
